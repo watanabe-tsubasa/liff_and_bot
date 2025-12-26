@@ -1,0 +1,83 @@
+<!--  src/static/index.html
+LIFFアプリの基本的なHTMLテンプレートです。
+必要に応じて編集してください -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LIFF App</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 1rem;
+      }
+      #profile {
+        margin-bottom: 1rem;
+      }
+      #profile img {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        border: none;
+        background-color: #00b900;
+        color: white;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>LIFF App</h1>
+    <div id="profile"></div>
+    <button id="send-message">Send Message</button>
+    <button id="close">Close</button>
+
+    <script>
+      async function main() {
+        const liffId = window.__ENV__?.LIFF_ID
+        if (!liffId) {
+          alert('LIFF_ID is not set.')
+          return
+        }
+
+        await liff.init({ liffId })
+
+        if (!liff.isLoggedIn()) {
+          liff.login()
+          return
+        }
+
+        const profile = await liff.getProfile()
+        const profileElement = document.getElementById('profile')
+        profileElement.innerHTML = `
+          <img src="${profile.pictureUrl}" alt="Profile Picture">
+          <div>Display Name: ${profile.displayName}</div>
+          <div>User ID: ${profile.userId}</div>
+          <div>Status Message: ${profile.statusMessage}</div>
+        `
+
+        document
+          .getElementById('send-message')
+          .addEventListener('click', () => {
+            liff.sendMessages([
+              {
+                type: 'text',
+                text: 'Hello from LIFF!',
+              },
+            ])
+          })
+
+        document.getElementById('close').addEventListener('click', () => {
+          liff.closeWindow()
+        })
+      }
+      main()
+    </script>
+  </body>
+</html>
